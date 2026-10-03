@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+cdsapirc
+
+# data and outputs
+*.nc
+*.nc.part
+*.bak
+models/
+*.log
+
+#folder not shared 
+
+charts/*
+data/*
+.venv/
+cdsapirc
+models/*
