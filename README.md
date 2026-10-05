@@ -8,6 +8,10 @@ You give one or more hours. For each one, the program downloads exactly the data
 |---|---|
 | `pressure_<time>.png` | Mean sea-level pressure isobars, every 4 hPa |
 | `temperature_<time>.png` | 850 hPa temperature isotherms, every 2 °C |
+| `wind_gust_<time>.png` | Instantaneous 10 m wind gust (m/s), labelled lines every 10 m/s |
+| `wind_<time>.png` | 10 m wind speed (shading) and direction (arrows), with isobars |
+| `cloud_base_<time>.png` | Height of the lowest cloud base above ground (m). White means no cloud |
+| `soil_moisture_<time>.png` | Volumetric soil water 7–28 cm deep (m³/m³), land only |
 | `fronts_<time>.png` | Warm, cold, occluded and stationary fronts from a pretrained neural network, drawn over the isobars |
 
 The fronts come from the pretrained network of Niebler et al. (2022), *Automated detection and classification of synoptic-scale fronts from atmospheric data grids*, Weather and Climate Dynamics 3, 113–137, https://doi.org/10.5194/wcd-3-113-2022. It was trained on the German weather service (DWD) front analyses over Europe and the North Atlantic. Nothing is trained here: the code only runs the published network.
@@ -57,13 +61,17 @@ The data come from the Copernicus Climate Data Store (CDS).
 Always run from the project folder. Give one or more hours, in UTC, in the format `YYYY-MM-DDTHH:MM`:
 
 ```bash
-uv run storm-fronts 2024-01-21T18:00                     # one hour
-uv run storm-fronts 2024-01-21T12:00 2024-01-22T00:00    # several hours
-uv run storm-fronts 2024-01-21T18:00 --area 65 -40 40 5  # custom lat/lon box: N W S E
+uv run storm-fronts --times 2024-01-21T18:00                       # one hour, all charts
+uv run storm-fronts --times 2024-01-21T12:00 2024-01-22T00:00      # several hours
+uv run storm-fronts --times 2024-01-21T18:00 --area 65 -40 40 5    # custom lat/lon box: N W S E
+uv run storm-fronts --times 2024-01-21T18:00 --charts_features wind_chart wind_gust_chart   # only some charts
+uv run storm-fronts --times 2024-01-19T00:00 2024-01-21T21:00 --diff soil_moisture          # + change chart
 ```
 
 - `--area` defaults to `75 -70 30 40` (North Atlantic + Europe). The network was trained on `75 -50 30 40`, so fronts are most reliable inside that box. West of 50°W they are less reliable.
 - Minutes are ignored, because ERA5 is hourly: `18:30` becomes `18:00`.
+- `--charts_features` picks which charts to make: `pressure_chart`, `temperature_chart`, `wind_gust_chart`, `wind_chart`, `cloud_base_chart`, `soil_moisture_chart`. Default: all of them.
+- `--diff soil_moisture` also makes a **change** chart between the first and the last hour of `--times`: soil water at the last hour minus soil water at the first. Blue means wetter, red drier, white unchanged. It's saved in `charts/<first hour>_to_<last hour>_<area>/`. The absolute soil moisture chart barely changes during a storm, because winter soil is already near saturation. The change chart shows where the rain was actually stored.
 
 For each hour:
 

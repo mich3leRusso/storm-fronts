@@ -32,8 +32,19 @@ def requests(t, area):
         "format": "netcdf",
     }
     return {
-        "msl": ("era5_msl.nc", "reanalysis-era5-single-levels",
-                surface_and_levels | {"variable": ["mean_sea_level_pressure"]}),
+        "surface": ("era5_surface.nc", "reanalysis-era5-single-levels", surface_and_levels | {"variable": [
+            "mean_sea_level_pressure",      # msl
+            "instantaneous_10m_wind_gust",  # i10fg
+            "10m_u_component_of_wind",      # u10
+            "10m_v_component_of_wind",      # v10
+            "cloud_base_height",            # cbh, NaN where there is no cloud
+        ]}),
+        # own file: adding it to era5_surface.nc would break folders where that file is already downloaded
+        "soil": ("era5_soil.nc", "reanalysis-era5-single-levels",
+                 surface_and_levels | {"variable": [
+                     "volumetric_soil_water_layer_2",  # swvl2, 7-28 cm deep
+                     "land_sea_mask",                  # lsm, to blank the sea (soil water there is meaningless)
+                 ]}),
         "p850": ("era5_850.nc", "reanalysis-era5-pressure-levels",
                  surface_and_levels | {"variable": ["temperature"], "pressure_level": ["850"]}),
         # t, u, v, q, w (omega) on the model levels: network input
